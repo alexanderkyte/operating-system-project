@@ -1,0 +1,57 @@
+Real Mode
+	-All modern OSes boot in protected mode. Real mode restricted. 
+	-Need to switch from real to restricted. 
+		-initial mode of all x86 processors
+
+-Memory Addressing:
+	-About 1MB of addressable memory
+	-Memory access done via segmentation/16-bit registers
+		Segment:Offset
+	Physical Address = Segment * 16 + Offset
+
+	-The Stack
+		-SS and SP are stack pointers in segment:offset style of SS:SP
+
+	-High Memory Area
+		-If you set DS to 0xFFFF it points to area 16 bytes below 1MB. If you use DS as base, can access physical memory from 0x100000 to 0x10FFEF
+		-This almost 64kb area is called high memory in real mode
+
+	-Addressing modes:
+		-16-bit addressing mode. more limited. 
+		-can use 32-bit by using address side override prefix of 0x67 at beginng of any instruction. 
+-Only Pro: Can access BIOS functions. 
+-Switching to protected mode:
+	-1.Disable interrupts and NMI
+		-use the asm command cli to turn off maskable interrupts
+	-2.Turn off paging
+		-transfer control to a 1:1 page
+		-ensure that GDT and IDT are in a 1:1 page, clear pg-flag in 0th control register, set third control register to 0
+	-3.Use GDT with 16-bit tables(google)
+	-4.Far jump to 16-bit protected mode with a 16-bit segment index
+	-5.Load ds, es, fs, gs, ss with 15-bit data segment
+	-6.
+	-7.
+	-8.
+	-9.
+	-10.
+	-11.re-enable interrupts
+	-12.	
+goooogle it when needed. 
+example on wiki.
+
+
+-Can switch back to real mode from protected mode:
+	-Create a special ring 0 program and place it in a physical memory address that is then accessed in real mode
+~~~
+Protected Mode:
+	-native mode of modern intel-type processors
+	-has 4gb of addressable memory
+	-unleashes cpu's power
+
+CON: forbids use of bios interrupts
+
+
+~~~
+NMI:Non-maskable interrupt
+	-hardware-driven interrupts like PIC interrupts but goes directly to cpu
+	-used for unrecoverable hardware problems, modern cpus have more complicated things. 

@@ -1,0 +1,65 @@
+-MMU=Memory Management Unit
+	-Handles translation between virtual memory(process's view) and the physical address ('real world') memory space
+	-Physical Address Space = direct memory addresses of real locations of ram
+		-in a PAS-only system, all code must either be relocatable or have relocation tables so the jump addresses can be altered at runtime
+
+	-Virtual Address space
+		-Can exist because of MMUs
+		-Virtual address can be mapped to any physical address
+		-can provide each executable with unique address space
+	-Security: because kernel handles address spaces, stops individual processes from messing with eachother's ram spaces
+
+Memory schemes:
+	-segmentation:
+		NOP
+	-paging:
+		-more efficient. rather than having individual virtual-to-physical mappings, you split the physical memory into pages and map within each page. 00x for page/process A =/= 00x for page/process B
+		-handled by MMU, so more efficient. 
+
+XXXXXXXXX(Monoprocess=/=paging)--DESIGN CHOICE: PAGING. 
+~~~
+Paging article:
+	-paging relies completely on the MMU
+-x86 mmu
+	-maps through two tables, the paging directory and the paging table
+		-both have 1024 entries, at 4bytes a piece, making it 4kb. 
+		-in page directory, each entry is pointer to page table
+		-in page table, each entry points to physical address
+		-virtual => physical by adding offset within directory to offset within table. possible because entire setup represents one linear map. 
+
+-- diagrams of setups of these structures at wiki.osdev.org/parsing
+
+-Page faults:
+	-caused when process seeks to access unmapped area of virtual memory, when write is attempted on read-only page, or when permissions inadequate
+	-Handling:
+		-error code pushed to stack, in bits. bit table on wiki page. 
+		-kernel must take action specified by these bits. 
+
+~~~
+
+Virtual memory:
+	-Rather than simply running out of ram, you want to move non-currently-accessed pages and write them to a swapfile/paging file. "paging out" memory.
+	-if done wrong, very costly.
+
+--WILL NOT DO INITIALLY 
+
+~~~
+Segmentation article:
+
+Real Mode:
+	-A:B used to select memory addresses. 
+		Physical address = (A * 0x10) + B
+	-For each fixed A, B can vary 16 bits. 16 bits = 64k values. Thus each block of varying B bits, or each 'segment' is 64k. 
+	-Multiple ways to point to one piece of memory. 
+	-Four x86 segment registers:
+		 CS, DS, SS, ES, and FS+GS
+	-Registers affected by far jumps, far calls, far returns, and IRET
+
+Protected Mode:
+	-considered obsolete, has security issues for multi-process programs. one can access another's memory. 
+	-A:B just like in real mode
+	-32-bit registers mean 4gb of addressable memory
+
+Differences:
+	-In A:B, A is not absolute value. A is a selector, or offset into GDT(Global descriptor table). 
+	 	Physical address = Segment Base (Found from the descriptor GDT[A]) + B

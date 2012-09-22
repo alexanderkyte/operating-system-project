@@ -1,0 +1,33 @@
+Steps:
+-Power On Self-Test = POST. 
+	-scans for bootable device. 
+-MBR
+	-bootable = boot sector with byte sequence 0x55, 0xAA in bytes 511 and 512
+	-BIOS loads boot sector into memory at specific location, usually 0x0000:0x7c00
+		-if messed up, absolute near jumps won't work
+		-enforce CS:IP at start of BS(boot-sector)
+EX:
+        ORG 0x7C00
+        jmp 0x0000:start
+        start:
+
+		-execution then transferred to boot record
+
+	On HDD, MBR holds executable code between 0x0000 - 0x01bd followed by table entries for primary partitions, 16 bytes per entry, and then 2-byte signature
+	-table for layout entries in wiki
+
+-Early Environment
+	-Highly implementation dependant
+	-Never make assumptions about contents of registers
+	-Cpu now in REAL MODE
+		-except for weird bios that put you in protected mode
+
+-Kernel Image
+	-Need a 'flat binary' without any relocation tables, startup code, etc. 
+			gcc -c my_kernel.c
+			ld my_kernel.o -o kernel.bin --oformat=binary -Ttext=0x100000
+				-c means no linking, just compiling
+-Loading said kernel image
+	-only 446 bytes available for boot record.
+	-different stages available
+	-grub most painless. grubgrubgrub
