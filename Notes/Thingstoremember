@@ -1,0 +1,15 @@
+ Strings
+
+When your Kernel is written in C, gcc puts strings and constants in a special section called read-only data. This section needs to be in your linkscript, in the .text section, otherwise it can cause all sorts of weird problems (unable to print text to the screen, kernel suddenly becoming 1MB larger, GRUB giving a loading error saying kernel too large, etc). The section is called .rodata in ELF and .rdata in COFF/PE (the output format for MinGW/Cygwin). Building a GCC Cross-Compiler will help you to safely assume .rodata everywhere.
+
+You could also tweak your linker script to include either section:
+
+// ...
+.text 0x100000 {
+  *(.text)
+  *(.rodata*) /* <---- ELF Cross Compiler or ELF *NIX (eg. Linux) */
+  *(.rdata*)  /* <---- COFF/PE MinGW or Cygwin on Windows */
+}
+// ...
+
+
