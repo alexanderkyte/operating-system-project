@@ -1,5 +1,7 @@
 Not much to see here yet. Probably not the most usable OS even when finished. My goal is to get an operating system written as a learning experience.
 
+Note: The build scripts/makefiles will only work on an i386 pc. 
+
 Design Decisions:
 
 	-I'm using a monolithic kernel, simply because its what linux, windows, os <= 8.6, and the BSD unices use. 
