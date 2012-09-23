@@ -7,3 +7,4 @@ Design Decisions:
 	-This OS is never going to run on raw hardware. Its going to be virutualized. 	
 	-Paging rather than memory segmentation(Do I need paging for a monotask system?) -Will: "Nope"
 	-Grub bootloader
+	-NASM, because I like the syntax better
