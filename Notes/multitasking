@@ -1,0 +1,6 @@
+Tasking theory:
+	-a cpu can only execute one thing at once
+	-each task given a TTL with which it can execute before being interrupted
+	-also, the time alocated ends when it calls kernel for an IO action
+	-schedulers saves stack and base pointers for each stack, restores stack and base pointers for the new process thats being switched to, switches addressing spaces, and jumps to the instruction that was previously executing. 
+		-some virtual address spaces share code, such as the kernel heap, shared libraries, etc. 

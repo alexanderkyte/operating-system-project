@@ -1,0 +1,15 @@
+-the kernel typically has the ability to do things that would be denied a user process, like disabling interrupts
+-user code should run as usermode, and make system calls. 
+
+user mode
+	-no direct way on x86 to switch to user mode. you have to fake a return from an exeception thrown in userland. 
+	-once there, we can't do things the kernel can. we need to use system calls. 
+
+system calls.
+	-user mode code can't run code in kernel memory space, or privileged instructions. 
+
+user places the system call number into a register and then throws a software interrupt, which causes a change to ring0, the kernel will handle the call, and the kernel will execute on the user's behalf. 
+-the kernel itself requries a valid stack, so a kernel call will usually switch the stack pointers to the kernel's stack.
+-kernel stack also used for preemptable kernel switching. 
+
+interrupt vector 0x80 is the one linux uses, is conventient.  
