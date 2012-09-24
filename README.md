@@ -1,6 +1,6 @@
 Not much to see here yet. Probably not the most usable OS even when finished. My goal is to get an operating system written as a learning experience.
 
-Note: The build scripts/makefiles will only work on an i386 pc. 
+Note: The build scripts/makefiles will only work on an i386 pc. Build requirements include sh, a linux build host, and the nasm assembler.  
 
 Design Decisions:
 

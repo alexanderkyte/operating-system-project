@@ -142,3 +142,4 @@ void monitor_write(char *c)
 }
 
 // Might want to add functions to write integers directly to output. 
+// -Will "Don't. I tried to as well. It's more or less impossible. "
