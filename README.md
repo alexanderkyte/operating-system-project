@@ -10,3 +10,6 @@ Design Decisions:
 	-Paging rather than memory segmentation(Do I need paging for a monotask system?) -Will: "Nope"
 	-Grub bootloader
 	-NASM, because I like the syntax better
+
+I'm using a number of osdev tutorials. GDT table code is mostly boilerplate, so I've wholesale stolen it from the tutorial which I used the most. All credit to: https://www.jamesmolloy.co.uk/
+This code has a "do whatever the hell you want, don't blame me for anything done with it." license. If you manage to get someone to pay for the code, while informing them that its all online here and the logic is available in a variety of other places, then you are good enough of a salesman that you deserve to keep that money. 
