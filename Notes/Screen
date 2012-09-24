@@ -1,0 +1,11 @@
+Grub provides kernel with framebuffer
+	-framebuffer: an area of memory that controls a square of characters 80 characters wide by 25 high. 
+		-barring expansions into world of VESA, this is where all of the video output will be
+	-accessable like normal ram at address 0xB8000. 
+		-not ram, virtual memory mapped to video ram
+	-the offset to the word of memory at position x,y is 
+	(y * 80 + x) * 2 
+		- *2 because each element is 2 bytes long(16-bits)
+		- In Ascii, 8 bits used to represent a character, the other 8 let us choose foreground and background colors at 4-bits each. 
+			Format = BG : FG : CHARCODE
+	

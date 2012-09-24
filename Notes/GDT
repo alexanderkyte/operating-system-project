@@ -1,0 +1,43 @@
+-Grub sets up a GDT
+	-we don't know where it is. 
+	-if you overwrite it, the computer crashes. 
+
+	6 segment registers: 
+		cs: code segment
+		ds: data segment
+		es: extra segment
+		fs, gs
+		ss: stack segment
+
+	-the GDT handles segmentation. 
+
+-IDT: Interrupt Descriptor Table
+	-handles kernel interrupts. 
+	-def: IRQ = interrupt request. 
+	-IDT tells cpu where to find handlers for each interrupt. 
+		-must be one for each, otherwise processor will panic. 
+
+cpu exception interrupts:
+
+
+    0 - Division by zero exception
+    1 - Debug exception
+    2 - Non maskable interrupt
+    3 - Breakpoint exception
+    4 - 'Into detected overflow'
+    5 - Out of bounds exception
+    6 - Invalid opcode exception
+    7 - No coprocessor exception
+    8 - Double fault (pushes an error code)
+    9 - Coprocessor segment overrun
+    10 - Bad TSS (pushes an error code)
+    11 - Segment not present (pushes an error code)
+    12 - Stack fault (pushes an error code)
+    13 - General protection fault (pushes an error code)
+    14 - Page fault (pushes an error code)
+    15 - Unknown interrupt exception
+    16 - Coprocessor fault
+    17 - Alignment check exception
+    18 - Machine check exception
+    19-31 - Reserved
+
