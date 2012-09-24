@@ -1,33 +1,40 @@
-; When processor recieves interrupt, it saves all important things to the stack. 
-; It then finds the interrupt handler from the IDT and jumps to it. 
-; Which interrupt was called isn't provided in that, so we need a different int handler for each interrupt. We can just write a bunch of handlers that then call a common function while passing in their identity. 
-; Because some need errors, we need to allocate a common stack frame for all error functions, and just pass null values for a non-error code. 
-;  	Each handler will be of this form:
-; [GLOBAL isr#]
-; isr0:
-;   cli                 ; Disable interrupts
-;   push byte 0         ; Push a dummy error code (if interrupt doesn't push it's own error code)
-;   push byte #         ; Push the interrupt number
-;   jmp isr_common_stub ; Go to our handler. 
+;
+; interrupt.s -- Contains interrupt service routine wrappers.
+;                Based on Bran's kernel development tutorials.
+;                Rewritten for JamesM's kernel development tutorials.
 
- %macro ISR_NOERRCODE 1  ; define a macro, taking as a parameter the ISR error code.
-  [GLOBAL isr%1]        
+; This macro creates a stub for an ISR which does NOT pass it's own
+; error code (adds a dummy errcode byte).
+%macro ISR_NOERRCODE 1
+  global isr%1
   isr%1:
-    cli
-    push byte 0
-    push byte %1
+    cli                         ; Disable interrupts firstly.
+    push byte 0                 ; Push a dummy error code.
+    push byte %1                ; Push the interrupt number.
+    jmp isr_common_stub         ; Go to our common handler code.
+%endmacro
+
+; This macro creates a stub for an ISR which passes it's own
+; error code.
+%macro ISR_ERRCODE 1
+  global isr%1
+  isr%1:
+    cli                         ; Disable interrupts.
+    push byte %1                ; Push the interrupt number
     jmp isr_common_stub
 %endmacro
 
-%macro ISR_ERRCODE 1
-  [GLOBAL isr%1]
-  isr%1:
+; This macro creates a stub for an IRQ - the first parameter is
+; the IRQ number, the second is the ISR number it is remapped to.
+%macro IRQ 2
+  global irq%1
+  irq%1:
     cli
-    push byte %1
-    jmp isr_common_stub
-%endmacro 
-
-; Call the macros. 8, and 10-14 are the only error interrupts
+    push byte 0
+    push byte %2
+    jmp irq_common_stub
+%endmacro
+        
 ISR_NOERRCODE 0
 ISR_NOERRCODE 1
 ISR_NOERRCODE 2
@@ -60,32 +67,84 @@ ISR_NOERRCODE 28
 ISR_NOERRCODE 29
 ISR_NOERRCODE 30
 ISR_NOERRCODE 31
+IRQ   0,    32
+IRQ   1,    33
+IRQ   2,    34
+IRQ   3,    35
+IRQ   4,    36
+IRQ   5,    37
+IRQ   6,    38
+IRQ   7,    39
+IRQ   8,    40
+IRQ   9,    41
+IRQ  10,    42
+IRQ  11,    43
+IRQ  12,    44
+IRQ  13,    45
+IRQ  14,    46
+IRQ  15,    47
 
-[EXTERN isr_handler]
+; In isr.c
+extern isr_handler
 
+; This is our common ISR stub. It saves the processor state, sets
+; up for kernel mode segments, calls the C-level fault handler,
+; and finally restores the stack frame.
 isr_common_stub:
-   pusha                    ; Pushes edi,esi,ebp,esp,ebx,edx,ecx,eax to the stack like the implementation of a kernel interrupt is specified to do.
+    pusha                    ; Pushes edi,esi,ebp,esp,ebx,edx,ecx,eax
 
-   mov ax, ds               ; Lower 16-bits of eax = ds, the data segment. 
-   push eax                 ; save the data segment descriptor to the stack, as per the specs
+    mov ax, ds               ; Lower 16-bits of eax = ds.
+    push eax                 ; save the data segment descriptor
 
-   mov ax, 0x10  ; load the kernel data segment descriptor into all of the segments by pushing the value 16 into them.
-   mov ds, ax
-   mov es, ax
-   mov fs, ax
-   mov gs, ax
+    mov ax, 0x10  ; load the kernel data segment descriptor
+    mov ds, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
 
-   call isr_handler
+    call isr_handler
 
-   pop eax        ; reload the original data segment descriptor; all of the previous stuff in reverse
-   mov ds, ax
-   mov es, ax
-   mov fs, ax
-   mov gs, ax
+    pop ebx        ; reload the original data segment descriptor
+    mov ds, bx
+    mov es, bx
+    mov fs, bx
+    mov gs, bx
 
-   popa                     ; Pops edi,esi,ebp,esp,ebx,edx,ecx,eax that we previously pushed. 
-   add esp, 8     ; Cleans up the pushed error code and pushed ISR number
-   sti
-   iret           ; pops 5 things at once: CS, EIP, EFLAGS, SS, and ESP
+    popa                     ; Pops edi,esi,ebp...
+    add esp, 8     ; Cleans up the pushed error code and pushed ISR number
+    sti
+    iret           ; pops 5 things at once: CS, EIP, EFLAGS, SS, and ESP
+
+; In isr.c
+extern irq_handler
+
+; This is our common IRQ stub. It saves the processor state, sets
+; up for kernel mode segments, calls the C-level fault handler,
+; and finally restores the stack frame.
+irq_common_stub:
+    pusha                    ; Pushes edi,esi,ebp,esp,ebx,edx,ecx,eax
+
+    mov ax, ds               ; Lower 16-bits of eax = ds.
+    push eax                 ; save the data segment descriptor
+
+    mov ax, 0x10  ; load the kernel data segment descriptor
+    mov ds, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
+
+    call irq_handler
+
+    pop ebx        ; reload the original data segment descriptor
+    mov ds, bx
+    mov es, bx
+    mov fs, bx
+    mov gs, bx
+
+    popa                     ; Pops edi,esi,ebp...
+    add esp, 8     ; Cleans up the pushed error code and pushed ISR number
+    sti
+    iret           ; pops 5 things at once: CS, EIP, EFLAGS, SS, and ESP
 
 
+        

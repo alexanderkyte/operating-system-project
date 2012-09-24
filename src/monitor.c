@@ -1,5 +1,7 @@
 // monitor.c -- Defines functions for writing to the monitor.
-//             heavily based on Bran's kernel development tutorials, and JamesM's tutorials as well. 
+//             heavily based on Bran's kernel development tutorials,
+//             but rewritten for JamesM's kernel tutorials.
+
 #include "monitor.h"
 
 // The VGA framebuffer starts at 0xB8000.
@@ -12,8 +14,8 @@ u8int cursor_y = 0;
 static void move_cursor()
 {
     // The screen is 80 characters wide...
-    u16int cursorLocation = cursor_y * 80 + cursor_x; // Alex: Offset for a given X,Y is given by (y * 80 + x)*2, and u8int is wide enough that *2 doesn't need to be there. 
-    outb(0x3D4, 14);                  // Tell the VGA board we are setting the high cursor byte. # Alex: This was stolen black magic. 0x3D4 is the framebuffer controller's command port, 0x3d5 is referencing a second portion of that port. 
+    u16int cursorLocation = cursor_y * 80 + cursor_x;
+    outb(0x3D4, 14);                  // Tell the VGA board we are setting the high cursor byte.
     outb(0x3D5, cursorLocation >> 8); // Send the high cursor byte.
     outb(0x3D4, 15);                  // Tell the VGA board we are setting the low cursor byte.
     outb(0x3D5, cursorLocation);      // Send the low cursor byte.
@@ -93,7 +95,7 @@ void monitor_put(char c)
     else if(c >= ' ')
     {
         location = video_memory + (cursor_y*80 + cursor_x);
-        *location = c | attribute; // sets the value to the logical or of the bit-shifted character. The line that ACTUALLY does the writing. 
+        *location = c | attribute;
         cursor_x++;
     }
 
@@ -141,5 +143,74 @@ void monitor_write(char *c)
     }
 }
 
-// Might want to add functions to write integers directly to output. 
-// -Will "Don't. I tried to as well. It's more or less impossible. "
+void monitor_write_hex(u32int n)
+{
+    s32int tmp;
+
+    monitor_write("0x");
+
+    char noZeroes = 1;
+
+    int i;
+    for (i = 28; i > 0; i -= 4)
+    {
+        tmp = (n >> i) & 0xF;
+        if (tmp == 0 && noZeroes != 0)
+        {
+            continue;
+        }
+    
+        if (tmp >= 0xA)
+        {
+            noZeroes = 0;
+            monitor_put (tmp-0xA+'a' );
+        }
+        else
+        {
+            noZeroes = 0;
+            monitor_put( tmp+'0' );
+        }
+    }
+  
+    tmp = n & 0xF;
+    if (tmp >= 0xA)
+    {
+        monitor_put (tmp-0xA+'a');
+    }
+    else
+    {
+        monitor_put (tmp+'0');
+    }
+
+}
+
+void monitor_write_dec(u32int n)
+{
+
+    if (n == 0)
+    {
+        monitor_put('0');
+        return;
+    }
+
+    s32int acc = n;
+    char c[32];
+    int i = 0;
+    while (acc > 0)
+    {
+        c[i] = '0' + acc%10;
+        acc /= 10;
+        i++;
+    }
+    c[i] = 0;
+
+    char c2[32];
+    c2[i--] = 0;
+    int j = 0;
+    while(i >= 0)
+    {
+        c2[i--] = c[j++];
+    }
+    monitor_write(c2);
+
+}

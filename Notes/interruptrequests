@@ -1,0 +1,19 @@
+-2 ways of communicating with external devices: polling and interrupts
+	-polling needed sometimes, but annoying and ties up cpu
+	-interrupts better, but sometimes impractical
+
+-all devices that can interrupt connect to the PIC(programmable interrupt controller)
+	-pic is only device that is connected to cpu's interrupt pin
+	-used as a multiplexer, 8-1
+	-all modern computers have 2 PICs daisy-chained together, giving us 15 interruptable devices.
+	-PIC can be remapped, can change the interrupt delivered for each IRQ line. 
+
+default mappings:
+	irq 0-7 = int 0x8 to 0xF
+	irq 8-15 = int0x70 to 0x77
+
+issue: defaults conflict with cpu exeception interrupts. usually redirect irq 0..15 to isr 32..47
+
+	each pic has a command and data port. 
+		master command is 0x20, data: 0x21
+		slave command is 0x20, data: 0xA1

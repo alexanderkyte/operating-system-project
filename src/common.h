@@ -1,5 +1,5 @@
 // common.h -- Defines typedefs and some global functions.
-// From JamesM's kernel development tutorials.
+//             From JamesM's kernel development tutorials.
 
 #ifndef COMMON_H
 #define COMMON_H
@@ -17,4 +17,4 @@ void outb(u16int port, u8int value);
 u8int inb(u16int port);
 u16int inw(u16int port);
 
-#endif
+#endif // COMMON_H
