@@ -63,3 +63,58 @@ Protected Mode:
 Differences:
 	-In A:B, A is not absolute value. A is a selector, or offset into GDT(Global descriptor table). 
 	 	Physical address = Segment Base (Found from the descriptor GDT[A]) + B
+
+~~~
+Tutorial on paging:
+
+virtual memory:
+	-paging fault happens when a process tries to access memory outside of its virtual address space.
+	-helpful to compilers, allows for position-dependant code. 
+	-must have hardware support, can't be emulated in software. 
+	-handled by x86 by the MMU
+paging
+	-pages can be mapped onto frames, equally sized blocks of physical memory. 
+	-average page size = 4kb
+	-each process has different page mapping
+-Rather than a big 4MB table, you can use the intel compromise and have the 2-tier system
+
+-Page faults:
+
+
+    Reading from or writing to an area of memory that is not mapped (page entry/table's 'present' flag is not set)
+    The process is in user-mode and tries to write to a read-only page.
+    The process is in user-mode and tries to access a kernel-only page.
+    The page table entry is corrupted - the reserved bits have been overwritten.
+
+-page fault is int0x14, has an error code
+	Bit 0 = if unset, page wasn't present
+	Bit 1 = write error, unset = read error
+	Bit 2 = set means in user mode when errored
+	Bit 3 = Set caused by reserved bits being overwritten
+	Bit 4 = error during instruction fetch
+
+Implementation:
+	We can implement malloc for the kernel without the proper provided heap by assuming that we'll never need to use free. Thus we only need to keep a pointer to the intial ram location that we'll eternally only increment. 
+	Some things must be page aligned.
+
+Classic example of how to do it:
+u32int kmalloc(u32int sz, int align, u32int *phys)
+{
+  if (align == 1 && (placement_address & 0xFFFFF000)) // If the address is not already page-aligned
+  {
+    // Align it.
+    placement_address &= 0xFFFFF000;
+    placement_address += 0x1000;
+  }
+  if (phys)
+  {
+    *phys = placement_address;
+  }
+  u32int tmp = placement_address;
+  placement_address += sz;
+  return tmp;
+} 
+
+~~
+
+

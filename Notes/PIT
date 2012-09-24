@@ -1,0 +1,4 @@
+-programmable interval timer is connected to irq0
+	-can interrupt cpu at a user-defined rater
+	-implements the system clock. IS the clock timer for interrupts. 
+	-had three channels. only 1 and 3 useful. 1 is cpu, 3 is pc speaker. 
